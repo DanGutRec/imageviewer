@@ -1,4 +1,4 @@
-package software.ulpgc.project.domain.model;
+package software.ulpgc.project.architecture.domain.model;
 
 import java.util.Objects;
 

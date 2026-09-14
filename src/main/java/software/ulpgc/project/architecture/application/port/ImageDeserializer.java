@@ -1,4 +1,4 @@
-package software.ulpgc.project.application.port;
+package software.ulpgc.project.architecture.application.port;
 
 public interface ImageDeserializer {
     Object deserialize(byte[] image);

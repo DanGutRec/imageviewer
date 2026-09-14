@@ -1,0 +1,754 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+images/
+  generated-image (2).png
+main/
+  java/
+    software/
+      ulpgc/
+        project/
+          architecture/
+            application/
+              command/
+                Command.java
+                NextCommand.java
+                PrevCommand.java
+                RestartCommand.java
+              port/
+                ImageDeserializer.java
+                ImageDisplay.java
+                ImageReader.java
+                ImageRepository.java
+                MetadataExtractor.java
+              usecase/
+                LoaderImage.java
+                NavigateImage.java
+              Main.java
+            domain/
+              model/
+                Canvas.java
+                Image.java
+                ImageMetadata.java
+            infrastructure/
+              adapter/
+                SwingDeserializer.java
+                SwingImageRepository.java
+                SwingMetaDataExtractor.java
+            presentation/
+              controller/
+                NavigationController.java
+          window/
+            ui/
+              MainFrame.java
+              SwingImageDisplay.java
+              SwingNavigationPanel.java
+.gitignore
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="main/java/software/ulpgc/project/architecture/application/command/Command.java">
+package software.ulpgc.project.architecture.application.command;
+
+public interface Command {
+    void execute();
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/command/NextCommand.java">
+package software.ulpgc.project.architecture.application.command;
+import software.ulpgc.project.architecture.application.usecase.NavigateImage;
+
+public class NextCommand implements Command{
+    private final NavigateImage navigateImage;
+    public NextCommand(NavigateImage navigateImage) {
+        this.navigateImage = navigateImage;
+    }
+    @Override
+    public void execute() {
+        navigateImage.nextImage();
+
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/command/PrevCommand.java">
+package software.ulpgc.project.architecture.application.command;
+
+import software.ulpgc.project.architecture.application.usecase.NavigateImage;
+
+public class PrevCommand implements Command {
+    private final NavigateImage navigateImage;
+    public PrevCommand(NavigateImage navigateImage) {
+        this.navigateImage = navigateImage;
+    }
+    @Override
+    public void execute() {
+        navigateImage.previousImage();
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/command/RestartCommand.java">
+package software.ulpgc.project.architecture.application.command;
+
+import software.ulpgc.project.architecture.application.usecase.NavigateImage;
+
+public class RestartCommand implements Command {
+    private final NavigateImage navigateImage;
+
+    public RestartCommand(NavigateImage navigateImage) {
+        this.navigateImage = navigateImage;
+    }
+
+    @Override
+    public void execute() {
+        navigateImage.start();
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/port/ImageDeserializer.java">
+package software.ulpgc.project.architecture.application.port;
+
+public interface ImageDeserializer {
+    Object deserialize(byte[] image);
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/port/ImageDisplay.java">
+package software.ulpgc.project.architecture.application.port;
+
+import software.ulpgc.project.architecture.domain.model.Image;
+
+public interface ImageDisplay {
+    void show(Image image);
+    Image getCurrentImage();
+    void clear();
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/port/ImageReader.java">
+package software.ulpgc.project.architecture.application.port;
+
+public interface ImageReader {
+    byte[] readBytes(String id);
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/port/ImageRepository.java">
+package software.ulpgc.project.architecture.application.port;
+
+import java.util.Optional;
+
+public interface ImageRepository {
+    Optional<String> getFirstImageId();
+    Optional<String> getNextImageId(String id);
+    Optional<String> getPreviousImageId(String id);
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/port/MetadataExtractor.java">
+package software.ulpgc.project.architecture.application.port;
+
+import software.ulpgc.project.architecture.domain.model.ImageMetadata;
+
+public interface MetadataExtractor {
+    public ImageMetadata extractMetadata(String id,byte[] image);
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/usecase/LoaderImage.java">
+package software.ulpgc.project.architecture.application.usecase;
+
+import software.ulpgc.project.architecture.application.port.ImageDisplay;
+import software.ulpgc.project.architecture.application.port.ImageReader;
+import software.ulpgc.project.architecture.application.port.MetadataExtractor;
+import software.ulpgc.project.architecture.domain.model.Image;
+import software.ulpgc.project.architecture.domain.model.ImageMetadata;
+
+public class LoaderImage {
+    private final ImageDisplay imageDisplay;
+    private final ImageReader imageReader;
+    private final MetadataExtractor metadataExtractor;
+    public LoaderImage(ImageDisplay imageDisplay, ImageReader imageReader, MetadataExtractor metadataExtractor) {
+        this.imageDisplay = imageDisplay;
+        this.imageReader = imageReader;
+        this.metadataExtractor = metadataExtractor;
+    }
+    public void loadImage(String id){
+        imageDisplay.show(getImage(id));
+    }
+
+    private Image getImage(String id) {
+        return new Image(id, getImageMetadata(id));
+    }
+
+    private ImageMetadata getImageMetadata(String id) {
+        return metadataExtractor.extractMetadata(id, getBytes(id));
+    }
+
+    private byte[] getBytes(String id) {
+        return imageReader.readBytes(id);
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/usecase/NavigateImage.java">
+package software.ulpgc.project.architecture.application.usecase;
+
+import software.ulpgc.project.architecture.application.port.ImageRepository;
+
+public class NavigateImage {
+    private final ImageRepository imageRepository;
+    private final LoaderImage loaderImage;
+    private String currentImageId;
+    public NavigateImage(ImageRepository imageRepository, LoaderImage loaderImage) {
+        this.imageRepository = imageRepository;
+        this.loaderImage = loaderImage;
+        this.currentImageId = null;
+    }
+    public void start() {
+        imageRepository.getFirstImageId().ifPresent(id -> {
+            this.currentImageId = id;
+            loaderImage.loadImage(id);
+        });    }
+    public void nextImage() {
+        if (currentImageId == null) return;
+        imageRepository.getNextImageId(currentImageId).ifPresent(id ->{
+                this.currentImageId=id;
+                loaderImage.loadImage(id);
+        });
+    }
+    public void previousImage() {
+        if (currentImageId == null) return;
+        imageRepository.getPreviousImageId(currentImageId).ifPresent(id ->{
+            this.currentImageId=id;
+            loaderImage.loadImage(id);
+        });
+    }
+
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/application/Main.java">
+package software.ulpgc.project.architecture.application;
+
+import software.ulpgc.project.window.ui.MainFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
+import java.io.File;
+
+public class Main {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                String folderPath = "images";
+                File imagesDirectory = new File(folderPath);
+
+                if (!imagesDirectory.exists()) {
+                    imagesDirectory.mkdirs();
+                }
+
+                MainFrame frame = new MainFrame(folderPath);
+
+                frame.start();
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null,
+                        "Error iniciando la aplicación: " + e.getMessage(),
+                        "Error Crítico",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        });
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/domain/model/Canvas.java">
+package software.ulpgc.project.architecture.domain.model;
+
+public record Canvas(int width, int height) {
+
+    public static Canvas ofSize(int width, int height) {
+        return new Canvas(width, height);
+    }
+
+    public Canvas fit(int imageWidth, int imageHeight) {
+        double scale = Math.min((double) this.width / imageWidth, (double) this.height / imageHeight);
+        return new Canvas((int) (imageWidth * scale), (int) (imageHeight * scale));
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/domain/model/Image.java">
+package software.ulpgc.project.architecture.domain.model;
+
+import java.util.Objects;
+
+public class Image {
+    private final String id;
+
+    private final ImageMetadata imageMetadata;
+
+
+    public Image(String id, ImageMetadata imageMetadata) {
+        this.id = id;
+        this.imageMetadata = imageMetadata;
+    }
+    public String getId() {
+        return id;
+    }
+    public ImageMetadata getImageMetadata() {return imageMetadata;}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Image image)) return false;
+        return Objects.equals(id, image.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/domain/model/ImageMetadata.java">
+package software.ulpgc.project.architecture.domain.model;
+
+import java.time.LocalDateTime;
+
+public record ImageMetadata(String id, LocalDateTime created,int height, int width,long size) {
+
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/infrastructure/adapter/SwingDeserializer.java">
+package software.ulpgc.project.architecture.infrastructure.adapter;
+
+import software.ulpgc.project.architecture.application.port.ImageDeserializer;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class SwingDeserializer implements ImageDeserializer {
+    private final Map<Integer, BufferedImage> image;
+
+    public SwingDeserializer() {
+        this.image = new HashMap<>();
+    }
+
+    @Override
+    public Object deserialize(byte[] imageData) {
+        return image.computeIfAbsent(Arrays.hashCode(imageData), i -> read(imageData));
+    }
+
+    private BufferedImage read(byte[] imageData) {
+        try {
+            return ImageIO.read(new ByteArrayInputStream(imageData));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/infrastructure/adapter/SwingImageRepository.java">
+package software.ulpgc.project.architecture.infrastructure.adapter;
+
+import software.ulpgc.project.architecture.application.port.ImageRepository;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class SwingImageRepository implements ImageRepository {
+    private final File root;
+    private final static List<String> format = Arrays.asList("jpg","bmp", "jpeg", "wbmp", "png", "gif", "tiff");
+
+    public SwingImageRepository(File root) {
+        this.root = testDirectory(root);
+    }
+
+    private File testDirectory(File root) {
+        if (!root.isDirectory() || !root.isDirectory()) throw new IllegalArgumentException("the root must be a directory");
+        return root;
+    }
+
+
+
+    private boolean isImgageFormat(File file) {
+        return format.stream().anyMatch(file.getName().toLowerCase()::endsWith);
+    }
+
+    @Override
+    public Optional<String> getFirstImageId() {
+        List<String> images = getValidImageIds();
+        return images.isEmpty() ? Optional.empty() : Optional.of(images.get(0));
+    }
+
+    @Override
+    public Optional<String> getNextImageId(String id) {
+        List<String> images = getValidImageIds();
+        int nextIndex=(images.indexOf(id)+1)%images.size();
+        return Optional.of(images.get(nextIndex));
+    }
+
+    @Override
+    public Optional<String> getPreviousImageId(String id) {
+        List<String> images = getValidImageIds();
+        int prevIndex=(images.indexOf(id)-1+images.size())%images.size();
+        return Optional.of(images.get(prevIndex));
+    }
+
+    private List<String> getValidImageIds() {
+        File[] files = root.listFiles();
+        if (files == null) return List.of();
+
+        return Arrays.stream(files)
+                .filter(File::isFile)
+                .filter(this::isImgageFormat)
+                .map(File::getName)
+                .sorted()
+                .collect(Collectors.toList());
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/infrastructure/adapter/SwingMetaDataExtractor.java">
+package software.ulpgc.project.architecture.infrastructure.adapter;
+
+import software.ulpgc.project.architecture.application.port.MetadataExtractor;
+import software.ulpgc.project.architecture.domain.model.ImageMetadata;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+public class SwingMetaDataExtractor implements MetadataExtractor {
+    @Override
+    public ImageMetadata extractMetadata(String id, byte[] image) {
+        try {
+            BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image));
+            return new ImageMetadata(id, LocalDateTime.now(), bufferedImage.getHeight() , bufferedImage.getWidth(), image.length);
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudieron extraer los metadatos", e);
+        }
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/architecture/presentation/controller/NavigationController.java">
+package software.ulpgc.project.architecture.presentation.controller;
+
+import software.ulpgc.project.architecture.application.command.Command;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class NavigationController {
+    private final Map<String, Command> commands;
+
+    public NavigationController() {
+        this.commands = new HashMap<>();
+    }
+    public void addCommand(String name, Command command) {
+        commands.put(name, command);
+    }
+    public void execute(String name) {
+        if (commands.containsKey(name)) {
+            commands.get(name).execute();
+        }
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/window/ui/MainFrame.java">
+package software.ulpgc.project.window.ui;
+
+import software.ulpgc.project.architecture.application.command.NextCommand;
+import software.ulpgc.project.architecture.application.command.PrevCommand;
+import software.ulpgc.project.architecture.application.port.ImageDeserializer;
+import software.ulpgc.project.architecture.application.port.ImageReader;
+import software.ulpgc.project.architecture.application.port.ImageRepository;
+import software.ulpgc.project.architecture.application.port.MetadataExtractor;
+import software.ulpgc.project.architecture.application.usecase.LoaderImage;
+import software.ulpgc.project.architecture.application.usecase.NavigateImage;
+import software.ulpgc.project.architecture.infrastructure.adapter.SwingDeserializer;
+import software.ulpgc.project.architecture.infrastructure.adapter.SwingImageRepository;
+import software.ulpgc.project.architecture.infrastructure.adapter.SwingMetaDataExtractor;
+import software.ulpgc.project.architecture.presentation.controller.NavigationController;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+public class MainFrame extends JFrame {
+    private final SwingImageDisplay imageDisplay;
+    private final NavigationController navigationController;
+    private final NavigateImage navigateImage;
+
+    public MainFrame(String imageFolderPath) {
+        this.setTitle("Image Viewer");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(1024, 768);
+        this.setLocationRelativeTo(null);
+        this.setLayout(new BorderLayout());
+
+        File folder = new File(imageFolderPath);
+        ImageRepository repository = new SwingImageRepository(folder);
+        ImageDeserializer deserializer = new SwingDeserializer();
+        MetadataExtractor extractor = new SwingMetaDataExtractor();
+
+        ImageReader reader = getImageReader(folder);
+
+        this.imageDisplay = new SwingImageDisplay(reader, deserializer);
+        LoaderImage loaderImage = new LoaderImage(imageDisplay, reader, extractor);
+        this.navigateImage = new NavigateImage(repository, loaderImage);
+
+        this.navigationController = new NavigationController();
+        navigationController.addCommand("next", new NextCommand(navigateImage));
+        navigationController.addCommand("previous", new PrevCommand(navigateImage));
+        SwingNavigationPanel navigationPanel = new SwingNavigationPanel(navigationController);
+
+        this.add(imageDisplay, BorderLayout.CENTER);
+        this.add(navigationPanel, BorderLayout.SOUTH);
+    }
+
+    private static ImageReader getImageReader(File folder) {
+        return id -> {
+            try {
+                return Files.readAllBytes(new File(folder, id).toPath());
+            } catch (IOException e) {
+                return new byte[0];
+            }
+        };
+    }
+
+    public void start() {
+        this.setVisible(true);
+        this.navigateImage.start();
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/window/ui/SwingImageDisplay.java">
+package software.ulpgc.project.window.ui;
+
+import software.ulpgc.project.architecture.application.port.ImageDeserializer;
+import software.ulpgc.project.architecture.application.port.ImageDisplay;
+import software.ulpgc.project.architecture.application.port.ImageReader;
+import software.ulpgc.project.architecture.domain.model.Image;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import software.ulpgc.project.architecture.domain.model.Canvas;
+public class SwingImageDisplay extends JPanel implements ImageDisplay {
+    private final ImageReader imageReader;
+    private final ImageDeserializer imageDeserializer;
+    private  Image currentImage;
+    private BufferedImage image;
+
+    public SwingImageDisplay(ImageReader imageReader, ImageDeserializer imageDeserializer) {
+        this.imageReader = imageReader;
+        this.imageDeserializer = imageDeserializer;
+        this.setBackground(Color.BLACK);
+    }
+
+    @Override
+    public void show(Image image) {
+        this.currentImage = image;
+        this.image= (BufferedImage) imageDeserializer.deserialize(imageReader.readBytes(image.getId()));
+        repaint();
+    }
+
+    @Override
+    public Image getCurrentImage() {
+        return currentImage;
+    }
+
+    @Override
+    public void clear() {
+        this.currentImage = null;
+        this.image = null;
+        repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (image == null) {
+            g.setColor(Color.WHITE);
+            String message = "No Images found it";
+
+            FontMetrics fm = g.getFontMetrics();
+            int textX = (getWidth() - fm.stringWidth(message)) / 2;
+            int textY = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
+
+            g.drawString(message, textX, textY);
+            return;
+        }
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        Canvas canvas = Canvas.ofSize(getWidth(), getHeight()).fit(image.getWidth(), image.getHeight());
+
+
+        g2d.drawImage(image,
+                getX(canvas),
+                getY(canvas),
+                canvas.width(),
+                canvas.height(),
+                null);    }
+
+    private int getX(Canvas canvas) {
+        return (getWidth() - canvas.width()) / 2;
+    }
+
+    private int getY(Canvas canvas) {
+        return (getHeight() - canvas.height()) / 2;
+    }
+}
+</file>
+
+<file path="main/java/software/ulpgc/project/window/ui/SwingNavigationPanel.java">
+package software.ulpgc.project.window.ui;
+
+import software.ulpgc.project.architecture.presentation.controller.NavigationController;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+
+public class SwingNavigationPanel extends JPanel {
+    private final NavigationController navigationController;
+
+    public SwingNavigationPanel(NavigationController navigationController) {
+        this.navigationController = navigationController;
+        this.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        init();
+    }
+    private void init() {
+        JPanel bottomPanel = new JPanel(new FlowLayout());
+
+        JButton previousButton = createButton("Previous",e->navigationController.execute("previous"));
+        JButton nextButton = createButton("Next",e->navigationController.execute("next"));
+
+        bottomPanel.add(previousButton);
+        bottomPanel.add(nextButton);
+        add(bottomPanel, BorderLayout.CENTER);
+
+    }
+
+    private static JButton createButton(String text, ActionListener actionListener) {
+        JButton button = new JButton(text);
+        button.addActionListener(actionListener);
+        button.setFocusPainted(false);
+        return button;
+
+    }
+}
+</file>
+
+<file path=".gitignore">
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.kotlin
+.jar
+.tar
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
+*.iml
+*.ipr
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+</file>
+
+</files>
